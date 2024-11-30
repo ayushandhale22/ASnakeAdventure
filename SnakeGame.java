@@ -11,7 +11,7 @@ public class SnakeGame {
         // Create a panel to simulate a thick border around the game area
         JPanel containerPanel = new JPanel(new BorderLayout());
         containerPanel.setBackground(Color.BLACK); // The background of the window
-        containerPanel.setBorder(BorderFactory.createLineBorder(Color.CYAN, 15)); // Thick colored border
+        containerPanel.setBorder(BorderFactory.createLineBorder(Color.CYAN, 10)); // Reduced cyan border thickness
 
         // Add game panel inside the container panel
         containerPanel.add(gamePanel, BorderLayout.CENTER);
@@ -109,24 +109,29 @@ public class SnakeGame {
         }
 
         private void drawBoundary(Graphics g) {
-            g.setColor(Color.CYAN); // Thick border color
-            g.fillRect(0, 0, WIDTH, 40); // Border top
-            g.fillRect(0, 0, 40, HEIGHT); // Border left
-            g.fillRect(WIDTH - 40, 0, 40, HEIGHT); // Border right
-            g.fillRect(0, HEIGHT - 40, WIDTH, 40); // Border bottom
+            g.setColor(Color.CYAN); // Set the color of the border
+            int borderThickness = 10; // Reduced border thickness
+
+            // Draw the border (top, left, right, and bottom)
+            g.fillRect(0, 0, WIDTH, borderThickness); // Top border
+            g.fillRect(0, 0, borderThickness, HEIGHT); // Left border
+            g.fillRect(WIDTH - borderThickness, 0, borderThickness, HEIGHT); // Right border
+            g.fillRect(0, HEIGHT - borderThickness, WIDTH, borderThickness); // Bottom border
         }
 
         private void drawSnake(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setColor(snakeColor);
             for (Point p : snake) {
-                g2d.fillRoundRect(p.x * TILE_SIZE, p.y * TILE_SIZE + 50, TILE_SIZE, TILE_SIZE, 10, 10); // Uniform body
+                // Offset by border thickness (10 pixels)
+                g2d.fillRoundRect(p.x * TILE_SIZE + 10, p.y * TILE_SIZE + 10, TILE_SIZE, TILE_SIZE, 10, 10); // Uniform body
             }
         }
 
         private void drawFood(Graphics g) {
             g.setColor(foodColor);
-            g.fillOval(food.x * TILE_SIZE, food.y * TILE_SIZE + 50, TILE_SIZE, TILE_SIZE); // Consistent food size and color
+            // Offset by border thickness (10 pixels)
+            g.fillOval(food.x * TILE_SIZE + 10, food.y * TILE_SIZE + 10, TILE_SIZE, TILE_SIZE); // Consistent food size and color
         }
 
         private void drawScore(Graphics g) {
@@ -252,7 +257,7 @@ public class SnakeGame {
                     case "yellow": foodColor = Color.YELLOW; break;
                     case "black": foodColor = Color.BLACK; break;
                     case "white": foodColor = Color.WHITE; break;
-                    default:
+                    default: 
                         JOptionPane.showMessageDialog(this, "Invalid color name! Using default color.");
                         foodColor = Color.RED;
                 }
@@ -261,27 +266,28 @@ public class SnakeGame {
         }
 
         @Override
-        public void keyTyped(KeyEvent e) {}
-
-        @Override
         public void keyPressed(KeyEvent e) {
-            if (isGameOver && e.getKeyCode() == KeyEvent.VK_R) {
-                restartGame();
-                return;
-            }
+            int key = e.getKeyCode();
 
-            if (e.getKeyCode() == KeyEvent.VK_UP && !direction.equals("DOWN")) {
+            if (key == KeyEvent.VK_UP && !direction.equals("DOWN")) {
                 direction = "UP";
-            } else if (e.getKeyCode() == KeyEvent.VK_DOWN && !direction.equals("UP")) {
+            } else if (key == KeyEvent.VK_DOWN && !direction.equals("UP")) {
                 direction = "DOWN";
-            } else if (e.getKeyCode() == KeyEvent.VK_LEFT && !direction.equals("RIGHT")) {
+            } else if (key == KeyEvent.VK_LEFT && !direction.equals("RIGHT")) {
                 direction = "LEFT";
-            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT && !direction.equals("LEFT")) {
+            } else if (key == KeyEvent.VK_RIGHT && !direction.equals("LEFT")) {
                 direction = "RIGHT";
+            } else if (key == KeyEvent.VK_R && isGameOver) {
+                restartGame();
             }
         }
 
         @Override
-        public void keyReleased(KeyEvent e) {}
+        public void keyReleased(KeyEvent e) {
+        }
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+        }
     }
 }
