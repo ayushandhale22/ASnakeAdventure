@@ -8,19 +8,27 @@ public class SnakeGame {
         JFrame frame = new JFrame("Snake Game");
         GamePanel gamePanel = new GamePanel();
         
+        // Create a panel to simulate a thick border around the game area
+        JPanel containerPanel = new JPanel(new BorderLayout());
+        containerPanel.setBackground(Color.BLACK); // The background of the window
+        containerPanel.setBorder(BorderFactory.createLineBorder(Color.CYAN, 15)); // Thick colored border
+
+        // Add game panel inside the container panel
+        containerPanel.add(gamePanel, BorderLayout.CENTER);
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(gamePanel);
+        frame.add(containerPanel);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
     static class GamePanel extends JPanel implements ActionListener, KeyListener {
-        private static final int WIDTH = 1000;
-        private static final int HEIGHT = 700;
+        private static final int WIDTH = 1000;  
+        private static final int HEIGHT = 750; // Adjusted height to make space for UI elements
         private static final int TILE_SIZE = 20;
-        private static final int GRID_WIDTH = 50;
-        private static final int GRID_HEIGHT = 35;
+        private static final int GRID_WIDTH = 50; 
+        private static final int GRID_HEIGHT = 35; 
         private LinkedList<Point> snake;
         private Point food;
         private String direction;
@@ -44,11 +52,13 @@ public class SnakeGame {
             setFocusable(true);
             addKeyListener(this);
 
+            // Create buttons and place them outside the game area
             restartButton = new JButton("Restart");
             quitButton = new JButton("Quit");
             changeSnakeColorButton = new JButton("Change Snake Color");
             changeFoodColorButton = new JButton("Change Food Color");
 
+            // Button positions adjusted below the game area
             restartButton.setBounds(400, 600, 100, 40);
             quitButton.setBounds(400, 650, 100, 40);
             changeSnakeColorButton.setBounds(350, 500, 180, 40);
@@ -64,6 +74,7 @@ public class SnakeGame {
             changeSnakeColorButton.addActionListener(e -> chooseSnakeColor());
             changeFoodColorButton.addActionListener(e -> chooseFoodColor());
 
+            // Prompt player for name
             playerName = JOptionPane.showInputDialog("Enter your name:");
 
             initGame();
@@ -72,16 +83,16 @@ public class SnakeGame {
 
         private void initGame() {
             snake = new LinkedList<>();
-            snake.add(new Point(10, 10));
-            food = new Point(15, 10);
+            snake.add(new Point(10, 10));  // Starting position
+            food = new Point(15, 10);  // Initial food position
             direction = "RIGHT";
             isGameOver = false;
             score = 0;
-            highScore = Math.max(score, highScore);
+            highScore = Math.max(score, highScore); // Initialize with a valid high score
         }
 
         private void startGame() {
-            timer = new Timer(100, this);
+            timer = new Timer(100, this); // Update every 100ms
             timer.start();
         }
 
@@ -90,37 +101,46 @@ public class SnakeGame {
             if (isGameOver) {
                 drawGameOver(g);
             } else {
-                drawBoundary(g);
+                drawBoundary(g); // Draw the boundary line with a thick border
                 drawSnake(g);
                 drawFood(g);
-                drawScore(g);
+                drawScore(g); // Display score
             }
         }
 
         private void drawBoundary(Graphics g) {
-            g.setColor(Color.WHITE);
-            g.drawRect(0, 0, WIDTH - 1, HEIGHT - 1);
+            g.setColor(Color.CYAN); // Thick border color
+            g.fillRect(0, 0, WIDTH, 40); // Border top
+            g.fillRect(0, 0, 40, HEIGHT); // Border left
+            g.fillRect(WIDTH - 40, 0, 40, HEIGHT); // Border right
+            g.fillRect(0, HEIGHT - 40, WIDTH, 40); // Border bottom
         }
 
         private void drawSnake(Graphics g) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setColor(snakeColor);
             for (Point p : snake) {
-                g2d.fillRoundRect(p.x * TILE_SIZE, p.y * TILE_SIZE, TILE_SIZE, TILE_SIZE, 10, 10);
+                g2d.fillRoundRect(p.x * TILE_SIZE, p.y * TILE_SIZE + 50, TILE_SIZE, TILE_SIZE, 10, 10); // Uniform body
             }
         }
 
         private void drawFood(Graphics g) {
             g.setColor(foodColor);
-            g.fillOval(food.x * TILE_SIZE, food.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            g.fillOval(food.x * TILE_SIZE, food.y * TILE_SIZE + 50, TILE_SIZE, TILE_SIZE); // Consistent food size and color
         }
 
         private void drawScore(Graphics g) {
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.PLAIN, 20));
-            g.drawString("Score: " + score, 10, 20);
-            g.drawString("High Score: " + highScore, WIDTH - 150, 20);
-            g.drawString("Player: " + playerName, WIDTH / 2 - 50, 20);
+
+            // Draw player name at the top-left corner
+            g.drawString("Player: " + playerName, 10, 30);
+
+            // Draw score just below the player's name
+            g.drawString("Score: " + score, 10, 60);
+
+            // Draw high score just below the score
+            g.drawString("High Score: " + highScore, 10, 90);
         }
 
         private void drawGameOver(Graphics g) {
@@ -152,16 +172,18 @@ public class SnakeGame {
             }
 
             snake.addFirst(newHead);
-            snake.removeLast();
+            snake.removeLast();  // Remove the tail
         }
 
         private void checkCollision() {
             Point head = snake.getFirst();
 
+            // Collision with walls
             if (head.x < 0 || head.x >= GRID_WIDTH || head.y < 0 || head.y >= GRID_HEIGHT) {
                 gameOver();
             }
 
+            // Collision with itself
             for (int i = 1; i < snake.size(); i++) {
                 if (head.equals(snake.get(i))) {
                     gameOver();
@@ -175,7 +197,7 @@ public class SnakeGame {
                 snake.addFirst(new Point(food.x, food.y));
                 score += 10;
                 if (score > highScore) {
-                    highScore = score;
+                    highScore = score; // Update high score if current score exceeds it
                 }
                 generateNewFood();
             }
@@ -190,7 +212,7 @@ public class SnakeGame {
         private void gameOver() {
             isGameOver = true;
             timer.stop();
-            requestFocusInWindow();
+            requestFocusInWindow();  // Ensure that we can still handle input after game over
         }
 
         private void restartGame() {
@@ -199,7 +221,7 @@ public class SnakeGame {
             initGame();
             startGame();
             repaint();
-            requestFocusInWindow();
+            requestFocusInWindow();  // Ensure that we can still handle input after restarting
         }
 
         private void chooseSnakeColor() {
@@ -217,7 +239,7 @@ public class SnakeGame {
                         snakeColor = Color.GREEN;
                 }
             }
-            requestFocusInWindow();
+            requestFocusInWindow();  // Ensure focus is back to game after changing color
         }
 
         private void chooseFoodColor() {
@@ -235,11 +257,13 @@ public class SnakeGame {
                         foodColor = Color.RED;
                 }
             }
-            requestFocusInWindow();
+            requestFocusInWindow();  // Ensure focus is back to game after changing color
         }
 
+        @Override
         public void keyTyped(KeyEvent e) {}
 
+        @Override
         public void keyPressed(KeyEvent e) {
             if (isGameOver && e.getKeyCode() == KeyEvent.VK_R) {
                 restartGame();
@@ -257,6 +281,7 @@ public class SnakeGame {
             }
         }
 
+        @Override
         public void keyReleased(KeyEvent e) {}
     }
 }
